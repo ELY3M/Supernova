@@ -1,6 +1,7 @@
 package com.supernova.launcher.ui
 
 import android.appwidget.AppWidgetProviderInfo
+import android.os.Build
 import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -10,12 +11,12 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.supernova.launcher.R
 import com.supernova.launcher.databinding.ActivityLauncherBinding
 import com.supernova.launcher.databinding.ViewEditModeBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import android.os.Build
 
 // Long-press edit mode: the page zooms out under a home-page marker,
 // Wallpapers/Settings float as chips, and an add sheet peeks from the bottom
@@ -99,8 +100,14 @@ class HomeEditController(
             binding.editWidgetRecycler.setPadding(
                 0, 0, 0, (24 * density).toInt() + maxOf(barInsets.bottom, keyboard)
             )
+            fitSheetHeight()
             overlay?.let(::applyOverlayInsets)
             insets
+        }
+        // The parent's height can change after the insets land (first layout,
+        // rotation, split screen); the sheet's height follows it.
+        binding.root.addOnLayoutChangeListener { _, _, top, _, bottom, _, oldTop, _, oldBottom ->
+            if (bottom - top != oldBottom - oldTop) binding.root.post { fitSheetHeight() }
         }
         binding.editWidgetRecycler.layoutManager = LinearLayoutManager(activity)
         binding.editWidgetRecycler.adapter = adapter
@@ -140,6 +147,23 @@ class HomeEditController(
         }
     }
 
+    // Expanded, the sheet stops under the status bar rather than running its
+    // handle up into it: a sheet opens to its own height, so it is the parent's
+    // height less the bar. Not a top margin: the behaviour adds a margin to
+    // the collapsed sheet when it lays it out but not when it settles after a
+    // drag, so the sheet came back a status bar higher, over the chips (#161).
+    private fun fitSheetHeight() {
+        val sheet = binding.editWidgetSheet
+        val parentHeight = binding.root.height
+        if (parentHeight <= 0) return
+        val height = parentHeight - barInsets.top
+        val params = sheet.layoutParams
+        if (params.height != height) {
+            params.height = height
+            sheet.layoutParams = params
+        }
+    }
+
     private fun applyOverlayInsets(ov: ViewEditModeBinding) {
         for (view in listOf(ov.editHomeMarker, ov.editRemovePage)) {
             (view.layoutParams as FrameLayout.LayoutParams).topMargin = barInsets.top + activity.dp(8)
@@ -155,13 +179,16 @@ class HomeEditController(
             inflated.editHomeMarker.setOnClickListener {
                 // The slot isn't a page to make home.
                 if (host.onAddPage()) return@setOnClickListener
+                if (DesktopLock.refused(activity, viewModel)) return@setOnClickListener
                 host.setDefaultPage(host.currentPage())
+                it.announceForAccessibility(activity.getString(R.string.edit_home_page_set))
                 // Saved in the background, so the stored home page is still
                 // the old one here: the marker lights for the page just set,
                 // where before it stayed dim until a swipe away and back.
                 showMarker(isDefault = true)
             }
             inflated.editRemovePage.setOnClickListener {
+                if (DesktopLock.refused(activity, viewModel)) return@setOnClickListener
                 if (!host.onAddPage() && host.canRemoveCurrentPage()) host.removeCurrentPage()
             }
             inflated.editChipWallpapers.setOnClickListener {
@@ -180,7 +207,10 @@ class HomeEditController(
         // Layout, bottom up: the sheet peeks, the chips sit just above it, and
         // the page shrinks toward the top until its bottom clears the chips.
         val rootHeight = binding.root.height
-        val peek = (rootHeight * PEEK_FRACTION).toInt()
+        // The sheet runs under the navigation bar, so the bar's height is
+        // added: what shows above it is the same on gesture and 3-button nav.
+        val peek = (rootHeight * PEEK_FRACTION).toInt() + barInsets.bottom
+        fitSheetHeight()
         behavior.peekHeight = peek
         val chips = ov.editChips
         (chips.layoutParams as FrameLayout.LayoutParams).bottomMargin = peek + activity.dp(12)
@@ -237,12 +267,15 @@ class HomeEditController(
         activity.lifecycleScope.launch {
             val (cellWidth, cellHeight) = host.cellSizePx()
             val (cols, rows) = host.grid()
-            val groups = withContext(Dispatchers.Default) {
-                val icons = WidgetPickerIcons.of(viewModel.appCatalog())
-                listOf(WidgetPickerGroups.launcherGroup(activity, icons)) +
-                    WidgetPickerGroups.build(activity, cellWidth, cellHeight, cols, rows, icons = icons)
+            val icons = WidgetPickerIcons.of(viewModel.appCatalog())
+            // The launcher's own row heads the list and is all that shows
+            // as the sheet rises, so it goes in at once; the apps follow.
+            val own = withContext(Dispatchers.Default) { WidgetPickerGroups.launcherGroup(activity, icons) }
+            if (isOpen) adapter.submit(listOf(own), expandAll = false)
+            val apps = withContext(Dispatchers.Default) {
+                WidgetPickerGroups.build(activity, cellWidth, cellHeight, cols, rows, icons = icons)
             }
-            if (isOpen) adapter.submit(groups, expandAll = false)
+            if (isOpen) adapter.submit(listOf(own) + apps, expandAll = false)
         }
     }
 
@@ -307,6 +340,10 @@ class HomeEditController(
         val marker = overlay?.editHomeMarker ?: return
         marker.isActivated = isDefault
         marker.alpha = if (isDefault) 1f else 0.55f
+        // Said as well as shown: dim and lit sound the same to a screen reader.
+        marker.contentDescription = activity.getString(
+            if (isDefault) R.string.edit_home_page else R.string.edit_make_home_page
+        )
     }
 
 

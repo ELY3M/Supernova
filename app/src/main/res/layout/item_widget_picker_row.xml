@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Two widget previews side by side (a two-column grid). Each cell:
-     preview, widget name, span, app name. cellB hides when the row is odd. -->
+     preview, widget name, span. cellB hides when the row is odd.
+     A preview shows at its own size and only shrinks to fit (never
+     stretched), and both cells sit on the row's bottom so the names line up. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="12dp"
-    android:layout_marginBottom="4dp"
+    android:layout_marginHorizontal="@dimen/space_ms"
+    android:layout_marginBottom="@dimen/space_xs"
     android:background="@drawable/bg_picker_card"
     android:baselineAligned="false"
+    android:gravity="bottom"
     android:orientation="horizontal"
-    android:padding="12dp">
+    android:padding="@dimen/space_ms">
 
     <LinearLayout
         android:id="@+id/cellA"
@@ -19,24 +22,26 @@
         android:background="?attr/selectableItemBackground"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="@dimen/space_sm">
 
         <ImageView
             android:id="@+id/previewA"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
             android:contentDescription="@string/widget"
+            android:maxHeight="@dimen/widget_preview_max_height"
             android:scaleType="fitCenter" />
 
         <com.supernova.launcher.ui.FadingTextView
             android:id="@+id/labelA"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/space_ms"
             android:gravity="center"
             android:maxLines="1"
             android:textColor="@color/textPrimary"
-            android:textSize="15sp" />
+            android:textSize="@dimen/text_body" />
 
         <TextView
             android:id="@+id/spanA"
@@ -44,16 +49,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="@color/textSecondary"
-            android:textSize="14sp" />
-
-        <com.supernova.launcher.ui.FadingTextView
-            android:id="@+id/providerA"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:maxLines="1"
-            android:textColor="@color/textSecondary"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_secondary" />
     </LinearLayout>
 
     <LinearLayout
@@ -64,24 +60,26 @@
         android:background="?attr/selectableItemBackground"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="@dimen/space_sm">
 
         <ImageView
             android:id="@+id/previewB"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
             android:contentDescription="@string/widget"
+            android:maxHeight="@dimen/widget_preview_max_height"
             android:scaleType="fitCenter" />
 
         <com.supernova.launcher.ui.FadingTextView
             android:id="@+id/labelB"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/space_ms"
             android:gravity="center"
             android:maxLines="1"
             android:textColor="@color/textPrimary"
-            android:textSize="15sp" />
+            android:textSize="@dimen/text_body" />
 
         <TextView
             android:id="@+id/spanB"
@@ -89,15 +87,6 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="@color/textSecondary"
-            android:textSize="14sp" />
-
-        <com.supernova.launcher.ui.FadingTextView
-            android:id="@+id/providerB"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:maxLines="1"
-            android:textColor="@color/textSecondary"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_secondary" />
     </LinearLayout>
 </LinearLayout>

@@ -5,8 +5,8 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
-import android.view.View
 import android.view.Gravity
+import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -74,15 +74,19 @@ class SearchBarView @JvmOverloads constructor(
         addView(searchIcon, LayoutParams(dp(20), dp(20)))
 
         hint.setText(R.string.search_hint)
-        hint.textSize = 15f
+        hint.textSizeOf(R.dimen.text_body)
         hint.maxLines = 1
         addView(hint, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(12) })
 
     }
 
+    // A host's own handling of a button (the feed's Settings opens the Feed
+    // page); true when it took the tap, else the button does its usual.
+    var onChip: ((SearchBarChip) -> Boolean)? = null
+
     private fun addChip(chip: SearchBarChip, color: Int) {
         val view = SearchBarButtons.view(context, chip, color) {
-            if (interactive) SearchBarButtons.run(context, chip)
+            if (interactive && onChip?.invoke(chip) != true) SearchBarButtons.run(context, chip)
         }
         view.tag = CHIP_TAG
         val size = dp(SearchBarButtons.BUTTON_DP)
@@ -125,8 +129,8 @@ class SearchBarView @JvmOverloads constructor(
             }
 
             // The magnifier on the left is fixed (set in init), in the
-            // bar's text colour like its buttons.
-            val tint = ColorStateList.valueOf(resolved.text)
+            // bar's text colour dimmed a little, like its buttons.
+            val tint = ColorStateList.valueOf(SearchBarButtons.iconTint(resolved.text))
             ImageViewCompat.setImageTintList(searchIcon, tint)
             hint.setTextColor((0x99 shl 24) or (resolved.text and 0xFFFFFF))
             // Hidden, not gone: it still holds the chips to the right edge.
