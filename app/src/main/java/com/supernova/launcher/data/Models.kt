@@ -19,6 +19,7 @@ import com.supernova.launcher.ui.LabelFont
 import com.supernova.launcher.ui.LaunchAnimation
 import com.supernova.launcher.ui.PopupMenuStyle
 import com.supernova.launcher.ui.ScrollEffect
+import com.supernova.launcher.ui.NavBarButtons
 import com.supernova.launcher.ui.StatusBarIcons
 import com.supernova.launcher.ui.theme.AccentColor
 import com.supernova.launcher.ui.theme.PaletteSourceMode
@@ -347,6 +348,8 @@ data class LauncherPrefs(
     val badgeCornerRadius: Int = BadgeLimits.CORNER_ROUND,
     // A thin dark ring around every badge (Outline).
     val badgeOutline: Boolean = true,
+    // The badge centred near the icon's corner, half outside it (#250).
+    val badgeOnCorner: Boolean = false,
     val folderPreviewStyle: FolderPreviewStyle = FolderPreviewStyle.GRID,
     // Draw the first member large in the preview, remaining members small.
     val folderPrioritizeFirst: Boolean = false,
@@ -421,6 +424,8 @@ data class LauncherPrefs(
     val dockPaddingV: Int = 0,
     // Global search: web engine (WebProvider name) and per-provider toggles.
     val searchWebProvider: WebProvider = WebProvider.GOOGLE,
+    // The search URL for the Custom engine, %s where the query goes.
+    val searchWebCustomUrl: String = "",
     val searchContacts: Boolean = false,
     val searchShortcuts: Boolean = true,
     // Folder names (workspace and drawer groups) as search results. Off by
@@ -503,6 +508,8 @@ data class LauncherPrefs(
     val hideStatusBar: Boolean = false,
     val darkStatusIcons: StatusBarIcons = StatusBarIcons.AUTO,
     val transparentNav: Boolean = true,
+    // Nav bar button tint (ui/NavBarButtons); AUTO follows the theme.
+    val navBarButtons: NavBarButtons = NavBarButtons.AUTO,
     // The status bar's twin of transparentNav: off paints it black over the
     // wallpaper instead of letting the wallpaper through.
     val transparentStatus: Boolean = true,
@@ -686,6 +693,8 @@ data class BackupPayload(
     val prefs: LauncherPrefs
 )
 
+// Serializable for AppListCache, the drawer's list kept between runs.
+@Serializable
 data class LaunchableApp(
     val packageName: String,
     val className: String,

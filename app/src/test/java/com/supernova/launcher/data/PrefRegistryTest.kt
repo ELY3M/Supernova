@@ -193,7 +193,7 @@ class PrefRegistryTest {
         accent_color:BLUE,INDIGO,PURPLE,PINK,RED,ORANGE,AMBER,GREEN,TEAL,CYAN
         palette_source:SYSTEM,WALLPAPER,CUSTOM
         label_font:DEFAULT,CONDENSED,SERIF,MONOSPACE
-        search_web_provider:GOOGLE,DUCKDUCKGO,BRAVE,BING
+        search_web_provider:GOOGLE,DUCKDUCKGO,BRAVE,BING,ECOSIA,STARTPAGE,QWANT,YAHOO,YANDEX,KAGI,CUSTOM
         search_window_mode:IMMERSIVE,WINDOW
         popup_style:BLOCK,PILLS,ANDROID12
         animation_speed:RELAXED,FAST
@@ -222,7 +222,7 @@ class PrefRegistryTest {
         drawer_labels:B folder_labels:B icon_normalize:B reshape_legacy:S icon_shadow:B
         icon_glass:S icon_swipe_indicator:B themed_icons:B themed_icons_autogen:B lock_method:S
         badge_color:S badge_position:S badge_scale:F badge_text_color:S badge_corner_radius:I
-        badge_outline:B folder_preview_style:S folder_prioritize_first:B folder_columns:I
+        badge_outline:B badge_on_corner:B folder_preview_style:S folder_prioritize_first:B folder_columns:I
         folder_close_on_launch:B folder_icon_scale:F folder_match_desktop:B
         folder_show_name:B folder_show_count:B folder_mode:S folder_shadow:B folder_scroll:S
         folder_icon_shape:S folder_icon_outline:B folder_match_window_color:B
@@ -231,7 +231,7 @@ class PrefRegistryTest {
         palette_seed:S style_config:S widget_corner_radius:I show_scrims:B wallpaper_zoom:B
         auto_add_apps:B label_font:S label_single_line:B dock_infinite_scroll:B
         dock_match_desktop:B dock_overlay:B dock_auto_close:B dock_remember_position:B
-        dock_padding_h:I dock_padding_v:I search_web_provider:S search_contacts:B
+        dock_padding_h:I dock_padding_v:I search_web_provider:S search_web_custom_url:S search_contacts:B
         search_shortcuts:B search_folders:B search_window_mode:S search_apps_one_row:B
         search_contact_cards:B search_cards:B search_calculator:B search_hidden_apps:B
         search_history:B search_private_keyboard:B search_query_shortcuts:B search_bar_widget_id:I
