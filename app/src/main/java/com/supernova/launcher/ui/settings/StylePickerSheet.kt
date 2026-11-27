@@ -238,10 +238,11 @@ object StylePickerSheet {
             val target = Slot.entries.first { slotButtonId(it) == checkedId }
             if (target != slot) selectSlot(target)
         }
-        // On the Surface slot, Default puts the opacity back as well: it reset
-        // everything but that (#298).
+        // Default puts back what the slot's page shows besides the colour:
+        // the opacity on Surface (#298), the minimum contrast on Text (#349).
         binding.styleDefault.setOnClickListener {
             val surfaceSlot = slot == Slot.SURFACE
+            if (slot == Slot.TEXT) style = style.copy(minContrast = null)
             if (surfaceSlot) {
                 style = style.copy(alpha = null)
                 if (SurfaceOpacity.handles(surfaceId)) {
@@ -251,6 +252,7 @@ object StylePickerSheet {
                 }
             }
             onPick(ColorSpec())
+            renderContrast()
             if (surfaceSlot && binding.opacityRow.isVisible) {
                 val shown = if (SurfaceOpacity.handles(surfaceId)) {
                     binding.opacitySeek.progress
@@ -323,6 +325,11 @@ object StylePickerSheet {
             listOf(
                 binding.slotGroup, binding.stripText, binding.stripAccent, binding.contrastRow
             ).forEach { it.visibility = android.view.View.GONE }
+        }
+        if (surfaceId == SurfaceId.DOCK) {
+            // The dock's Text colours its labels on a plate; nothing on it
+            // takes an accent.
+            listOf(binding.slotAccent, binding.stripAccent).forEach { it.visibility = android.view.View.GONE }
         }
         if (surfaceId in BAR_SURFACES) {
             if (barGlassOn(surfaceId, prefs)) {
